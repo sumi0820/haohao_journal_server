@@ -1,5 +1,7 @@
 package com.haohao.journal.server.service
 
+import com.haohao.journal.server.dto.TaskCreateRequest
+import com.haohao.journal.server.dto.TaskUpdateRequest
 import com.haohao.journal.server.model.Task
 import com.haohao.journal.server.model.TaskStatus
 import com.haohao.journal.server.repository.TaskRepository
@@ -50,27 +52,21 @@ class TaskService(
     }
 
     @Transactional
-    fun create(
-        sprintId: Long,
-        epicId: Long,
-        title: String,
-        memo: String?,
-        plannedDate: LocalDateTime,
-    ): Task {
+    fun create(request: TaskCreateRequest): Task {
         val sprint =
-            sprintService.findById(sprintId)
-                ?: throw IllegalArgumentException("Sprint not found with id: $sprintId")
+            sprintService.findById(request.sprintId)
+                ?: throw IllegalArgumentException("Sprint not found with id: ${request.sprintId}")
         val epic =
-            epicService.findById(epicId)
-                ?: throw IllegalArgumentException("Epic not found with id: $epicId")
+            epicService.findById(request.epicId)
+                ?: throw IllegalArgumentException("Epic not found with id: ${request.epicId}")
 
         val task =
             Task(
                 sprint = sprint,
                 epic = epic,
-                title = title,
-                memo = memo,
-                plannedDate = plannedDate,
+                title = request.title,
+                memo = request.memo,
+                plannedDate = request.plannedDate,
             )
         return taskRepository.save(task)
     }
@@ -78,25 +74,21 @@ class TaskService(
     @Transactional
     fun update(
         id: Long,
-        epicId: Long?,
-        title: String?,
-        memo: String?,
-        plannedDate: LocalDateTime?,
-        status: TaskStatus?,
+        request: TaskUpdateRequest,
     ): Task {
         val task = findById(id) ?: throw IllegalArgumentException("Task not found with id: $id")
 
-        epicId?.let {
+        request.epicId?.let {
             val epic =
                 epicService.findById(it)
                     ?: throw IllegalArgumentException("Epic not found with id: $it")
             task.epic = epic
         }
 
-        title?.let { task.title = it }
-        memo?.let { task.memo = it }
-        plannedDate?.let { task.plannedDate = it }
-        status?.let {
+        request.title?.let { task.title = it }
+        request.memo?.let { task.memo = it }
+        request.plannedDate?.let { task.plannedDate = it }
+        request.status?.let {
             task.status = it
             if (it == TaskStatus.DONE) {
                 task.completedDate = LocalDateTime.now()
