@@ -10,5 +10,7 @@ import java.time.LocalDateTime
 @Repository
 interface SprintRepository : JpaRepository<Sprint, Long> {
     @Query("SELECT s FROM Sprint s WHERE :date BETWEEN s.startDate AND s.endDate")
-    fun findByDate(@Param("date") date: LocalDateTime): Sprint?
+    fun findByDate(
+        @Param("date") date: LocalDateTime,
+    ): Sprint?
 }

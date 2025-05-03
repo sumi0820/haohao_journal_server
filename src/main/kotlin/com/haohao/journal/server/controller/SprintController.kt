@@ -16,18 +16,18 @@ import java.time.LocalDateTime
 
 data class CreateSprintRequest(
     val startDate: LocalDateTime,
-    val endDate: LocalDateTime
+    val endDate: LocalDateTime,
 )
 
 data class UpdateSprintRequest(
     val startDate: LocalDateTime?,
-    val endDate: LocalDateTime?
+    val endDate: LocalDateTime?,
 )
 
 @RestController
 @RequestMapping("/api/sprints")
 class SprintController(
-    private val sprintService: SprintService
+    private val sprintService: SprintService,
 ) {
     @GetMapping
     fun getAllSprints(): ResponseEntity<List<Sprint>> {
@@ -35,21 +35,25 @@ class SprintController(
     }
 
     @GetMapping("/{id}")
-    fun getSprint(@PathVariable id: Long): ResponseEntity<Sprint> {
+    fun getSprint(
+        @PathVariable id: Long,
+    ): ResponseEntity<Sprint> {
         return sprintService.findById(id)
             ?.let { ResponseEntity.ok(it) }
             ?: ResponseEntity.notFound().build()
     }
 
     @PostMapping
-    fun createSprint(@RequestBody request: CreateSprintRequest): ResponseEntity<Sprint> {
+    fun createSprint(
+        @RequestBody request: CreateSprintRequest,
+    ): ResponseEntity<Sprint> {
         return ResponseEntity.ok(sprintService.create(request.startDate, request.endDate))
     }
 
     @PutMapping("/{id}")
     fun updateSprint(
         @PathVariable id: Long,
-        @RequestBody request: UpdateSprintRequest
+        @RequestBody request: UpdateSprintRequest,
     ): ResponseEntity<Sprint> {
         return try {
             ResponseEntity.ok(sprintService.update(id, request.startDate, request.endDate))
@@ -61,7 +65,7 @@ class SprintController(
     @PutMapping("/{id}/status")
     fun updateSprintStatus(
         @PathVariable id: Long,
-        @RequestBody status: SprintStatus
+        @RequestBody status: SprintStatus,
     ): ResponseEntity<Sprint> {
         return try {
             ResponseEntity.ok(sprintService.updateStatus(id, status))
@@ -71,7 +75,9 @@ class SprintController(
     }
 
     @DeleteMapping("/{id}")
-    fun deleteSprint(@PathVariable id: Long): ResponseEntity<Void> {
+    fun deleteSprint(
+        @PathVariable id: Long,
+    ): ResponseEntity<Void> {
         return try {
             sprintService.delete(id)
             ResponseEntity.noContent().build()

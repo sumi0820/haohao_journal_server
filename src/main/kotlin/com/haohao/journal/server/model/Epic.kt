@@ -16,20 +16,15 @@ data class Epic(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-
     @ManyToOne
     @JoinColumn(name = "sprint_id", nullable = false)
     var sprint: Sprint,
-
     @Column(nullable = false)
     var title: String,
-
     @Column
     var description: String? = null,
-
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
-
     @Column(nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
+    var updatedAt: LocalDateTime = LocalDateTime.now(),
 )

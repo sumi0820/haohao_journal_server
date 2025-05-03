@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @SpringBootTest(
     webEnvironment = WebEnvironment.RANDOM_PORT,
-    classes = [HaohaoJournalServerApplication::class]
+    classes = [HaohaoJournalServerApplication::class],
 )
 @AutoConfigureMockMvc
 @Import(TestConfig::class, TestSecurityConfig::class, TestRepositoryConfig::class)

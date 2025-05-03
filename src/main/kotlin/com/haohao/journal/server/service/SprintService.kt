@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 
 @Service
 class SprintService(
-    private val sprintRepository: SprintRepository
+    private val sprintRepository: SprintRepository,
 ) {
     @Transactional(readOnly = true)
     fun findAll(): List<Sprint> = sprintRepository.findAll()
@@ -21,24 +21,34 @@ class SprintService(
     fun findByDate(date: LocalDateTime): Sprint? = sprintRepository.findByDate(date)
 
     @Transactional
-    fun create(startDate: LocalDateTime, endDate: LocalDateTime): Sprint {
+    fun create(
+        startDate: LocalDateTime,
+        endDate: LocalDateTime,
+    ): Sprint {
         val sprint = Sprint(startDate = startDate, endDate = endDate)
         return sprintRepository.save(sprint)
     }
 
     @Transactional
-    fun update(id: Long, startDate: LocalDateTime?, endDate: LocalDateTime?): Sprint {
+    fun update(
+        id: Long,
+        startDate: LocalDateTime?,
+        endDate: LocalDateTime?,
+    ): Sprint {
         val sprint = findById(id) ?: throw IllegalArgumentException("Sprint not found with id: $id")
         return sprintRepository.save(
             sprint.copy(
                 startDate = startDate ?: sprint.startDate,
-                endDate = endDate ?: sprint.endDate
-            )
+                endDate = endDate ?: sprint.endDate,
+            ),
         )
     }
 
     @Transactional
-    fun updateStatus(id: Long, status: SprintStatus): Sprint {
+    fun updateStatus(
+        id: Long,
+        status: SprintStatus,
+    ): Sprint {
         val sprint = findById(id) ?: throw IllegalArgumentException("Sprint not found with id: $id")
         return sprintRepository.save(sprint.copy(status = status))
     }

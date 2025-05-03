@@ -57,11 +57,13 @@ class SprintAutoGeneratorTest {
 
         // Then
         verify(sprintRepository).findByDate(fixedNow)
-        verify(sprintRepository).save(argThat { sprint ->
-            sprint.startDate == startDate &&
-            sprint.endDate == endDate &&
-            sprint.status == SprintStatus.NOT_STARTED
-        })
+        verify(sprintRepository).save(
+            argThat { sprint ->
+                sprint.startDate == startDate &&
+                    sprint.endDate == endDate &&
+                    sprint.status == SprintStatus.NOT_STARTED
+            },
+        )
     }
 
     @Test

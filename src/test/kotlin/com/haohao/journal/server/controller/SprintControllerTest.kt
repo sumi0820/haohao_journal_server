@@ -6,27 +6,30 @@ import com.haohao.journal.server.model.Sprint
 import com.haohao.journal.server.model.SprintStatus
 import com.haohao.journal.server.service.SprintService
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.never
+import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
 
 data class CreateSprintRequest(
     val startDate: LocalDateTime,
-    val endDate: LocalDateTime
+    val endDate: LocalDateTime,
 )
 
 data class UpdateSprintRequest(
     val startDate: LocalDateTime?,
-    val endDate: LocalDateTime?
+    val endDate: LocalDateTime?,
 )
 
 @WebMvcTest(SprintController::class)
@@ -42,12 +45,13 @@ class SprintControllerTest {
     private lateinit var sprintService: SprintService
 
     private val now = LocalDateTime.now()
-    private val sprint = Sprint(
-        id = 1L,
-        startDate = now,
-        endDate = now.plusWeeks(2),
-        status = SprintStatus.NOT_STARTED
-    )
+    private val sprint =
+        Sprint(
+            id = 1L,
+            startDate = now,
+            endDate = now.plusWeeks(2),
+            status = SprintStatus.NOT_STARTED,
+        )
 
     @Test
     fun `should return all sprints`() {
@@ -92,7 +96,7 @@ class SprintControllerTest {
         mockMvc.perform(
             post("/api/sprints")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
+                .content(objectMapper.writeValueAsString(request)),
         )
             .andExpect(status().isOk)
             .andExpect(content().json(objectMapper.writeValueAsString(sprint)))
@@ -108,7 +112,7 @@ class SprintControllerTest {
         mockMvc.perform(
             put("/api/sprints/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
+                .content(objectMapper.writeValueAsString(request)),
         )
             .andExpect(status().isOk)
             .andExpect(content().json(objectMapper.writeValueAsString(sprint)))
@@ -125,7 +129,7 @@ class SprintControllerTest {
         mockMvc.perform(
             put("/api/sprints/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
+                .content(objectMapper.writeValueAsString(request)),
         )
             .andExpect(status().isNotFound)
     }
@@ -140,7 +144,7 @@ class SprintControllerTest {
         mockMvc.perform(
             put("/api/sprints/1/status")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(status))
+                .content(objectMapper.writeValueAsString(status)),
         )
             .andExpect(status().isOk)
             .andExpect(content().json(objectMapper.writeValueAsString(sprint)))
@@ -157,7 +161,7 @@ class SprintControllerTest {
         mockMvc.perform(
             put("/api/sprints/1/status")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(status))
+                .content(objectMapper.writeValueAsString(status)),
         )
             .andExpect(status().isNotFound)
     }

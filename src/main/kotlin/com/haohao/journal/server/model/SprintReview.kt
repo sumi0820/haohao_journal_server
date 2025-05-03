@@ -16,23 +16,17 @@ data class SprintReview(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-
     @ManyToOne
     @JoinColumn(name = "sprint_id", nullable = false)
     val sprint: Sprint,
-
     @Column(nullable = false)
     var title: String,
-
     @Column(nullable = false)
     var content: String,
-
     @Column(nullable = false)
     var reviewDate: LocalDateTime,
-
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
-
     @Column(nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
+    var updatedAt: LocalDateTime = LocalDateTime.now(),
 )

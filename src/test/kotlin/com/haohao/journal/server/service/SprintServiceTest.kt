@@ -26,11 +26,12 @@ class SprintServiceTest {
     private lateinit var sprintService: SprintService
 
     private val now = LocalDateTime.now()
-    private val sprint = Sprint(
-        id = 1L,
-        startDate = now,
-        endDate = now.plusWeeks(2)
-    )
+    private val sprint =
+        Sprint(
+            id = 1L,
+            startDate = now,
+            endDate = now.plusWeeks(2),
+        )
 
     @Test
     fun `findAll should return all sprints`() {
@@ -62,10 +63,14 @@ class SprintServiceTest {
 
     @Test
     fun `create should return created sprint`() {
-        `when`(sprintRepository.save(argThat { sprint ->
-            sprint.startDate == now &&
-            sprint.endDate == now.plusWeeks(2)
-        })).thenReturn(sprint)
+        `when`(
+            sprintRepository.save(
+                argThat { sprint ->
+                    sprint.startDate == now &&
+                        sprint.endDate == now.plusWeeks(2)
+                },
+            ),
+        ).thenReturn(sprint)
 
         val result = sprintService.create(now, now.plusWeeks(2))
 
@@ -79,10 +84,14 @@ class SprintServiceTest {
         val updatedSprint = sprint.copy(startDate = updatedStartDate, endDate = updatedEndDate)
 
         `when`(sprintRepository.findById(1L)).thenReturn(Optional.of(sprint))
-        `when`(sprintRepository.save(argThat { sprint ->
-            sprint.startDate == updatedStartDate &&
-            sprint.endDate == updatedEndDate
-        })).thenReturn(updatedSprint)
+        `when`(
+            sprintRepository.save(
+                argThat { sprint ->
+                    sprint.startDate == updatedStartDate &&
+                        sprint.endDate == updatedEndDate
+                },
+            ),
+        ).thenReturn(updatedSprint)
 
         val result = sprintService.update(1L, updatedStartDate, updatedEndDate)
 

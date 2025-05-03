@@ -9,5 +9,10 @@ import java.time.LocalDateTime
 @Repository
 interface DailyReviewRepository : JpaRepository<DailyReview, Long> {
     fun findBySprint(sprint: Sprint): List<DailyReview>
-    fun findBySprintAndReviewDateBetween(sprint: Sprint, startDate: LocalDateTime, endDate: LocalDateTime): DailyReview?
+
+    fun findBySprintAndReviewDateBetween(
+        sprint: Sprint,
+        startDate: LocalDateTime,
+        endDate: LocalDateTime,
+    ): DailyReview?
 }

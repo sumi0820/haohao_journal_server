@@ -1,7 +1,6 @@
 package com.haohao.journal.server.validation
 
 import com.haohao.journal.server.model.Sprint
-import com.haohao.journal.server.model.SprintStatus
 import com.haohao.journal.server.service.SprintService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -36,11 +35,12 @@ class SprintDateValidatorTest {
     fun `validate should return error when sprint overlaps with existing sprint`() {
         val startDate = now.plusDays(1)
         val endDate = now.plusDays(14)
-        val existingSprint = Sprint(
-            id = 1L,
-            startDate = now,
-            endDate = now.plusDays(7)
-        )
+        val existingSprint =
+            Sprint(
+                id = 1L,
+                startDate = now,
+                endDate = now.plusDays(7),
+            )
 
         `when`(sprintService.findAll()).thenReturn(listOf(existingSprint))
 
@@ -95,11 +95,12 @@ class SprintDateValidatorTest {
         val sprintId = 1L
         val startDate = now.plusDays(1)
         val endDate = now.plusDays(14)
-        val existingSprint = Sprint(
-            id = 2L,
-            startDate = now,
-            endDate = now.plusDays(7)
-        )
+        val existingSprint =
+            Sprint(
+                id = 2L,
+                startDate = now,
+                endDate = now.plusDays(7),
+            )
 
         `when`(sprintService.findAll()).thenReturn(listOf(existingSprint))
 
@@ -113,11 +114,12 @@ class SprintDateValidatorTest {
         val sprintId = 1L
         val startDate = now
         val endDate = now.plusDays(14) // 2 weeks
-        val existingSprint = Sprint(
-            id = sprintId,
-            startDate = now.minusDays(7),
-            endDate = now.plusDays(7)
-        )
+        val existingSprint =
+            Sprint(
+                id = sprintId,
+                startDate = now.minusDays(7),
+                endDate = now.plusDays(7),
+            )
 
         `when`(sprintService.findAll()).thenReturn(listOf(existingSprint))
 

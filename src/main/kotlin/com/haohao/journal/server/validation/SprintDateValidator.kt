@@ -9,7 +9,9 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 @Component
-class SprintDateValidator(private val sprintService: SprintService) : ConstraintValidator<SprintDateConstraint, Sprint> {
+class SprintDateValidator(
+    private val sprintService: SprintService,
+) : ConstraintValidator<SprintDateConstraint, Sprint> {
     companion object {
         private const val MIN_SPRINT_DURATION_DAYS = 7L // 1 week
         private const val MAX_SPRINT_DURATION_DAYS = 28L // 4 weeks
@@ -19,7 +21,10 @@ class SprintDateValidator(private val sprintService: SprintService) : Constraint
         // 初期化は不要ですが、インターフェースの実装として必要です
     }
 
-    override fun isValid(sprint: Sprint?, context: ConstraintValidatorContext): Boolean {
+    override fun isValid(
+        sprint: Sprint?,
+        context: ConstraintValidatorContext,
+    ): Boolean {
         if (sprint == null) {
             return true
         }
@@ -49,7 +54,10 @@ class SprintDateValidator(private val sprintService: SprintService) : Constraint
         return true
     }
 
-    fun validate(startDate: LocalDateTime, endDate: LocalDateTime): SprintDateValidationResult {
+    fun validate(
+        startDate: LocalDateTime,
+        endDate: LocalDateTime,
+    ): SprintDateValidationResult {
         if (startDate.isAfter(endDate)) {
             return SprintDateValidationResult.START_DATE_AFTER_END_DATE
         }
@@ -70,7 +78,11 @@ class SprintDateValidator(private val sprintService: SprintService) : Constraint
         return SprintDateValidationResult.SUCCESS
     }
 
-    fun validateForUpdate(sprintId: Long, startDate: LocalDateTime, endDate: LocalDateTime): SprintDateValidationResult {
+    fun validateForUpdate(
+        sprintId: Long,
+        startDate: LocalDateTime,
+        endDate: LocalDateTime,
+    ): SprintDateValidationResult {
         if (startDate.isAfter(endDate)) {
             return SprintDateValidationResult.START_DATE_AFTER_END_DATE
         }

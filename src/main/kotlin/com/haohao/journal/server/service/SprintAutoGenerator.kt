@@ -14,7 +14,7 @@ import java.time.temporal.TemporalAdjusters
 class SprintAutoGenerator(
     private val sprintService: SprintService,
     private val sprintRepository: SprintRepository,
-    private val clock: Clock = Clock.systemDefaultZone()
+    private val clock: Clock = Clock.systemDefaultZone(),
 ) {
     companion object {
         private const val START_HOUR = 0
