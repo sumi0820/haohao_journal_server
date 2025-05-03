@@ -47,3 +47,23 @@
     description: "A test fails: Fix the issue and ensure the test passes before proceeding"
     actions:
       - run: npm test
+
+  # 8. Enforce Kotlin coding conventions and run KtLint and Detekt with specific settings
+  - id: enforce-kotlin-style
+    when: preCommit
+    description: >
+      Follow Kotlin official coding conventions (https://kotlinlang.org/docs/coding-conventions.html)
+      and ensure code conforms to KtLint (v1.2.1) and Detekt (v1.23.5) static analysis tools
+    actions:
+      - run: ./gradlew ktlintCheck
+      - run: ./gradlew detekt
+
+  # 9. Limit the number of changed files in a single commit
+  - id: limit-files-per-commit
+    when: preCommit
+    description: >
+      Implement features in small units. Ensure that no more than 10 files are modified in a single commit.
+    actions:
+      - if: changedFiles.count > 10
+        run: |
+          echo "Too many files changed in one commit (limit: 10). Consider splitting into smaller feature units." && exit 1
