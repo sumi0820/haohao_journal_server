@@ -1,0 +1,49 @@
+.rules:
+  # 1. Run the formatter before committing changes
+  - id: run-formatter-before-commit
+    when: preCommit
+    description: "Before committing changes: Run the formatter and ensure there are no formatting errors"
+    actions:
+      - run: npm run format
+
+  # 2. Commit changes after completing the implementation of a single feature or task
+  - id: commit-changes-after-feature
+    when: preCommit
+    description: "After completing the implementation of a single feature or task: Commit the changes"
+    actions:
+      - run: echo "Commit the changes"
+
+  # 3. Detect build or test errors at commit time and analyze before proceeding
+  - id: analyze-build-or-test-errors
+    when: onCommit
+    description: "Build or test errors occur at commit time: Analyze the error messages and consider possible solutions before proceeding"
+    actions:
+      - run: echo "Analyze the error messages and consider possible solutions before proceeding"
+
+  # 4. Use English for commit messages, code comments, and TODOs for consistency and clarity
+  - id: enforce-english-in-messages
+    when: preCommit
+    description: "Writing commit messages, code comments, or TODOs: Use English for consistency and clarity"
+    actions:
+      - run: echo "Use English for consistency and clarity"
+
+  # 5. Run the formatter to fix formatting errors when detected
+  - id: fix-formatting-error
+    when: preCommit
+    description: "A formatting error is detected: Run the formatter to fix the issue before proceeding"
+    actions:
+      - run: npm run format
+
+  # 6. Verify that tests pass after implementing a test
+  - id: verify-test-pass
+    when: onTestPass
+    description: "After implementing a test: Verify that the test passes before proceeding"
+    actions:
+      - run: npm test
+
+  # 7. Fix issues and ensure tests pass when a test fails
+  - id: fix-failing-test
+    when: onTestFail
+    description: "A test fails: Fix the issue and ensure the test passes before proceeding"
+    actions:
+      - run: npm test
