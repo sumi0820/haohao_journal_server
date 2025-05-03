@@ -3,6 +3,7 @@ package com.haohao.journal.server.controller
 import com.haohao.journal.server.model.Sprint
 import com.haohao.journal.server.model.SprintStatus
 import com.haohao.journal.server.service.SprintService
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -29,6 +30,8 @@ data class UpdateSprintRequest(
 class SprintController(
     private val sprintService: SprintService,
 ) {
+    private val logger = LoggerFactory.getLogger(SprintController::class.java)
+
     @GetMapping
     fun getAllSprints(): ResponseEntity<List<Sprint>> {
         return ResponseEntity.ok(sprintService.findAll())
@@ -55,10 +58,15 @@ class SprintController(
         @PathVariable id: Long,
         @RequestBody request: UpdateSprintRequest,
     ): ResponseEntity<Sprint> {
+        if (sprintService.findById(id) == null) {
+            return ResponseEntity.notFound().build()
+        }
+
         return try {
             ResponseEntity.ok(sprintService.update(id, request.startDate, request.endDate))
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.notFound().build()
+            logger.warn("Failed to update sprint: ${e.message}")
+            ResponseEntity.badRequest().build()
         }
     }
 
@@ -67,10 +75,15 @@ class SprintController(
         @PathVariable id: Long,
         @RequestBody status: SprintStatus,
     ): ResponseEntity<Sprint> {
+        if (sprintService.findById(id) == null) {
+            return ResponseEntity.notFound().build()
+        }
+
         return try {
             ResponseEntity.ok(sprintService.updateStatus(id, status))
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.notFound().build()
+            logger.warn("Failed to update sprint status: ${e.message}")
+            ResponseEntity.badRequest().build()
         }
     }
 
@@ -78,11 +91,16 @@ class SprintController(
     fun deleteSprint(
         @PathVariable id: Long,
     ): ResponseEntity<Void> {
+        if (sprintService.findById(id) == null) {
+            return ResponseEntity.notFound().build()
+        }
+
         return try {
             sprintService.delete(id)
             ResponseEntity.noContent().build()
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.notFound().build()
+            logger.warn("Failed to delete sprint: ${e.message}")
+            ResponseEntity.badRequest().build()
         }
     }
 }

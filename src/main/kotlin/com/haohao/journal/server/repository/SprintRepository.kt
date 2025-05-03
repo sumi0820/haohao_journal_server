@@ -13,4 +13,15 @@ interface SprintRepository : JpaRepository<Sprint, Long> {
     fun findByDate(
         @Param("date") date: LocalDateTime,
     ): Sprint?
+
+    @Query(
+        """
+        SELECT s FROM Sprint s
+        WHERE (s.startDate <= :endDate AND s.endDate >= :startDate)
+    """,
+    )
+    fun findOverlappingSprints(
+        @Param("startDate") startDate: LocalDateTime,
+        @Param("endDate") endDate: LocalDateTime,
+    ): List<Sprint>
 }

@@ -24,7 +24,6 @@ class SprintAutoGenerator(
         private val START_TIME = LocalTime.of(START_HOUR, START_MINUTE)
         private val END_TIME = LocalTime.of(END_HOUR, END_MINUTE)
         private val START_DAY = DayOfWeek.MONDAY
-        private val END_DAY = DayOfWeek.SUNDAY
         private const val SPRINT_DURATION_DAYS = 6L
     }
 

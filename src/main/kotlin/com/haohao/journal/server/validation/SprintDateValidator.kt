@@ -1,52 +1,41 @@
 package com.haohao.journal.server.validation
 
 import com.haohao.journal.server.model.Sprint
-import com.haohao.journal.server.service.SprintService
+import com.haohao.journal.server.repository.SprintRepository
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 @Component
 class SprintDateValidator(
-    private val sprintService: SprintService,
+    private val sprintRepository: SprintRepository,
 ) : ConstraintValidator<SprintDateConstraint, Sprint> {
-    companion object {
-        private const val MIN_SPRINT_DURATION_DAYS = 7L // 1 week
-        private const val MAX_SPRINT_DURATION_DAYS = 28L // 4 weeks
-    }
-
     override fun initialize(constraintAnnotation: SprintDateConstraint) {
         // Initialization is not required, but needed as an interface implementation
     }
 
     override fun isValid(
-        sprint: Sprint?,
+        sprint: Sprint,
         context: ConstraintValidatorContext,
     ): Boolean {
-        if (sprint == null) {
-            return true
-        }
-
-        if (sprint.id == 0L && sprint.startDate.isBefore(LocalDateTime.now())) {
-            context.disableDefaultConstraintViolation()
-            context.buildConstraintViolationWithTemplate("Start date must not be in the past")
-                .addConstraintViolation()
-            return false
-        }
+        val violations = mutableListOf<String>()
 
         if (sprint.startDate.isAfter(sprint.endDate)) {
-            context.disableDefaultConstraintViolation()
-            context.buildConstraintViolationWithTemplate("Start date must be before end date")
-                .addConstraintViolation()
-            return false
+            violations.add("Start date must be before end date")
         }
 
-        val duration = ChronoUnit.DAYS.between(sprint.startDate, sprint.endDate)
-        if (duration < MIN_SPRINT_DURATION_DAYS || duration > MAX_SPRINT_DURATION_DAYS) {
+        if (sprint.startDate.isBefore(LocalDateTime.now())) {
+            violations.add("Start date must be in the future")
+        }
+
+        if (sprint.endDate.isBefore(LocalDateTime.now())) {
+            violations.add("End date must be in the future")
+        }
+
+        if (violations.isNotEmpty()) {
             context.disableDefaultConstraintViolation()
-            context.buildConstraintViolationWithTemplate("Sprint duration must be between 1 day and 4 weeks")
+            context.buildConstraintViolationWithTemplate(violations.joinToString(", "))
                 .addConstraintViolation()
             return false
         }
@@ -54,52 +43,54 @@ class SprintDateValidator(
         return true
     }
 
-    fun validate(
-        startDate: LocalDateTime,
-        endDate: LocalDateTime,
-    ): SprintDateValidationResult {
-        if (startDate.isAfter(endDate)) {
-            return SprintDateValidationResult.START_DATE_AFTER_END_DATE
+    fun validate(sprint: Sprint): List<String> {
+        val violations = mutableListOf<String>()
+
+        if (sprint.startDate.isAfter(sprint.endDate)) {
+            violations.add("Start date must be before end date")
         }
 
-        val duration = ChronoUnit.DAYS.between(startDate, endDate)
-        if (duration < MIN_SPRINT_DURATION_DAYS) {
-            return SprintDateValidationResult.DURATION_TOO_SHORT
-        }
-        if (duration > MAX_SPRINT_DURATION_DAYS) {
-            return SprintDateValidationResult.DURATION_TOO_LONG
+        if (sprint.startDate.isBefore(LocalDateTime.now())) {
+            violations.add("Start date must be in the future")
         }
 
-        val existingSprints = sprintService.findAll()
-        if (existingSprints.any { it.overlaps(startDate, endDate) }) {
-            return SprintDateValidationResult.OVERLAPS_WITH_EXISTING_SPRINT
+        if (sprint.endDate.isBefore(LocalDateTime.now())) {
+            violations.add("End date must be in the future")
         }
 
-        return SprintDateValidationResult.SUCCESS
+        val overlappingSprints = sprintRepository.findOverlappingSprints(sprint.startDate, sprint.endDate)
+        if (overlappingSprints.isNotEmpty()) {
+            violations.add("Sprint dates overlap with existing sprint")
+        }
+
+        return violations
     }
 
     fun validateForUpdate(
-        sprintId: Long,
-        startDate: LocalDateTime,
-        endDate: LocalDateTime,
-    ): SprintDateValidationResult {
-        if (startDate.isAfter(endDate)) {
-            return SprintDateValidationResult.START_DATE_AFTER_END_DATE
+        sprint: Sprint,
+        existingSprint: Sprint,
+    ): List<String> {
+        val violations = mutableListOf<String>()
+
+        if (sprint.startDate.isAfter(sprint.endDate)) {
+            violations.add("Start date must be before end date")
         }
 
-        val duration = ChronoUnit.DAYS.between(startDate, endDate)
-        if (duration < MIN_SPRINT_DURATION_DAYS) {
-            return SprintDateValidationResult.DURATION_TOO_SHORT
-        }
-        if (duration > MAX_SPRINT_DURATION_DAYS) {
-            return SprintDateValidationResult.DURATION_TOO_LONG
+        if (sprint.startDate.isBefore(LocalDateTime.now())) {
+            violations.add("Start date must be in the future")
         }
 
-        val existingSprints = sprintService.findAll()
-        if (existingSprints.any { it.id != sprintId && it.overlaps(startDate, endDate) }) {
-            return SprintDateValidationResult.OVERLAPS_WITH_EXISTING_SPRINT
+        if (sprint.endDate.isBefore(LocalDateTime.now())) {
+            violations.add("End date must be in the future")
         }
 
-        return SprintDateValidationResult.SUCCESS
+        val overlappingSprints =
+            sprintRepository.findOverlappingSprints(sprint.startDate, sprint.endDate)
+                .filter { it.id != existingSprint.id }
+        if (overlappingSprints.isNotEmpty()) {
+            violations.add("Sprint dates overlap with existing sprint")
+        }
+
+        return violations
     }
 }

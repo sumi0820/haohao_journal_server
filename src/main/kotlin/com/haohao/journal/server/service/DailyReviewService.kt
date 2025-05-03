@@ -13,9 +13,8 @@ class DailyReviewService(
 ) {
     @Transactional(readOnly = true)
     fun findAllBySprint(sprintId: Long): List<DailyReview> {
-        val sprint =
-            sprintService.findById(sprintId)
-                ?: throw IllegalArgumentException("Sprint not found with id: $sprintId")
+        val sprint = sprintService.findById(sprintId)
+        require(sprint != null) { "Sprint not found with id: $sprintId" }
         return dailyReviewRepository.findBySprint(sprint)
     }
 
@@ -27,9 +26,8 @@ class DailyReviewService(
         sprintId: Long,
         date: LocalDateTime,
     ): DailyReview? {
-        val sprint =
-            sprintService.findById(sprintId)
-                ?: throw IllegalArgumentException("Sprint not found with id: $sprintId")
+        val sprint = sprintService.findById(sprintId)
+        require(sprint != null) { "Sprint not found with id: $sprintId" }
         val startOfDay = date.toLocalDate().atStartOfDay()
         val endOfDay = startOfDay.plusDays(1).minusNanos(1)
         return dailyReviewRepository.findBySprintAndReviewDateBetween(sprint, startOfDay, endOfDay)
@@ -42,14 +40,11 @@ class DailyReviewService(
         content: String,
         reviewDate: LocalDateTime,
     ): DailyReview {
-        val sprint =
-            sprintService.findById(sprintId)
-                ?: throw IllegalArgumentException("Sprint not found with id: $sprintId")
+        val sprint = sprintService.findById(sprintId)
+        require(sprint != null) { "Sprint not found with id: $sprintId" }
 
         val existingReview = findBySprintAndDate(sprintId, reviewDate)
-        if (existingReview != null) {
-            throw IllegalArgumentException("Daily review already exists for date: $reviewDate")
-        }
+        require(existingReview == null) { "Daily review already exists for date: $reviewDate" }
 
         val review =
             DailyReview(
@@ -68,7 +63,8 @@ class DailyReviewService(
         content: String?,
         reviewDate: LocalDateTime?,
     ): DailyReview {
-        val review = findById(id) ?: throw IllegalArgumentException("Review not found with id: $id")
+        val review = findById(id)
+        require(review != null) { "Review not found with id: $id" }
 
         title?.let { review.title = it }
         content?.let { review.content = it }
@@ -80,7 +76,8 @@ class DailyReviewService(
 
     @Transactional
     fun delete(id: Long) {
-        val review = findById(id) ?: throw IllegalArgumentException("Review not found with id: $id")
+        val review = findById(id)
+        require(review != null) { "Review not found with id: $id" }
         dailyReviewRepository.delete(review)
     }
 }

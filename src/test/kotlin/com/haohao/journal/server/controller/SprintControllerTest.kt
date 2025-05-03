@@ -106,6 +106,7 @@ class SprintControllerTest {
     fun `should update sprint when exists`() {
         // Given
         val request = UpdateSprintRequest(startDate = now, endDate = now.plusWeeks(2))
+        `when`(sprintService.findById(1L)).thenReturn(sprint)
         `when`(sprintService.update(1L, request.startDate, request.endDate)).thenReturn(sprint)
 
         // When/Then
@@ -122,8 +123,7 @@ class SprintControllerTest {
     fun `should return 404 when updating non-existent sprint`() {
         // Given
         val request = UpdateSprintRequest(startDate = now, endDate = now.plusWeeks(2))
-        `when`(sprintService.update(1L, request.startDate, request.endDate))
-            .thenThrow(IllegalArgumentException("Sprint not found with id: 1"))
+        `when`(sprintService.findById(1L)).thenReturn(null)
 
         // When/Then
         mockMvc.perform(
@@ -138,6 +138,7 @@ class SprintControllerTest {
     fun `should update sprint status when exists`() {
         // Given
         val status = SprintStatus.IN_PROGRESS
+        `when`(sprintService.findById(1L)).thenReturn(sprint)
         `when`(sprintService.updateStatus(1L, status)).thenReturn(sprint)
 
         // When/Then
@@ -154,8 +155,7 @@ class SprintControllerTest {
     fun `should return 404 when updating status of non-existent sprint`() {
         // Given
         val status = SprintStatus.IN_PROGRESS
-        `when`(sprintService.updateStatus(1L, status))
-            .thenThrow(IllegalArgumentException("Sprint not found with id: 1"))
+        `when`(sprintService.findById(1L)).thenReturn(null)
 
         // When/Then
         mockMvc.perform(
@@ -168,6 +168,9 @@ class SprintControllerTest {
 
     @Test
     fun `should delete sprint when exists`() {
+        // Given
+        `when`(sprintService.findById(1L)).thenReturn(sprint)
+
         // When/Then
         mockMvc.perform(delete("/api/sprints/1"))
             .andExpect(status().isNoContent)
@@ -178,8 +181,7 @@ class SprintControllerTest {
     @Test
     fun `should return 404 when deleting non-existent sprint`() {
         // Given
-        `when`(sprintService.delete(1L))
-            .thenThrow(IllegalArgumentException("Sprint not found with id: 1"))
+        `when`(sprintService.findById(1L)).thenReturn(null)
 
         // When/Then
         mockMvc.perform(delete("/api/sprints/1"))

@@ -28,11 +28,7 @@ class SprintAutoGeneratorTest {
     @Mock
     private lateinit var sprintRepository: SprintRepository
 
-    @Mock
-    private lateinit var clock: Clock
-
     private lateinit var sprintAutoGenerator: SprintAutoGenerator
-
     private lateinit var fixedNow: LocalDateTime
     private lateinit var fixedClock: Clock
     private val zoneId = ZoneId.systemDefault()
