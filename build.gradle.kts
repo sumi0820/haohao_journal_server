@@ -31,11 +31,11 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.postgresql:postgresql")
 
-    // データベース
+    // Database
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
 
-    // テスト
+    // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.mockk:mockk:1.13.9")
@@ -55,7 +55,7 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-// ktlint設定
+// ktlint configuration
 ktlint {
     version.set("1.2.1")
     debug.set(true)
@@ -76,7 +76,7 @@ ktlint {
     disabledRules.set(listOf("no-wildcard-imports"))
 }
 
-// detekt設定
+// detekt configuration
 detekt {
     config.setFrom(files("$projectDir/config/detekt/detekt.yml"))
     baseline = file("$projectDir/config/detekt/baseline.xml")
@@ -94,7 +94,7 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
     }
 }
 
-// カスタムタスクの定義
+// Custom task definitions
 tasks.register("preCommit") {
     group = "verification"
     description = "Runs all checks before commit"
@@ -107,7 +107,7 @@ tasks.register("prePush") {
     dependsOn("preCommit", "build")
 }
 
-// Gradle 9.0互換性のための設定
+// Gradle 9.0 compatibility settings
 tasks.withType<org.gradle.api.tasks.wrapper.Wrapper> {
     gradleVersion = "8.6"
     distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL

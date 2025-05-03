@@ -33,17 +33,17 @@ object SprintDateValidationRules {
         val startDateTime = sprint.startDate.with(START_TIME)
         val endDateTime = sprint.endDate.with(END_TIME)
 
-        // 開始日が月曜日0:00であることを確認
+        // Verify that the start date is Monday 00:00
         val isStartMonday =
             startDateTime.dayOfWeek == START_DAY &&
                 startDateTime.toLocalTime() == START_TIME
 
-        // 終了日が日曜日23:59であることを確認
+        // Verify that the end date is Sunday 23:59
         val isSundayEnd =
             endDateTime.dayOfWeek == END_DAY &&
                 endDateTime.toLocalTime() == END_TIME
 
-        // 開始日と終了日が同じ週であることを確認
+        // Verify that the start and end dates are in the same week
         val expectedEndDate =
             startDateTime
                 .with(TemporalAdjusters.nextOrSame(START_DAY))

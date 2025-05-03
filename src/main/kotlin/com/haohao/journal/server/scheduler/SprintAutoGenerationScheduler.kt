@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 class SprintAutoGenerationScheduler(
     private val sprintAutoGenerator: SprintAutoGenerator,
 ) {
-    @Scheduled(fixedRate = 3600000) // 1時間ごと
+    @Scheduled(fixedRate = 3600000) // Every hour
     fun checkAndGenerateSprint() {
         sprintAutoGenerator.generateCurrentSprintIfNeeded()
     }

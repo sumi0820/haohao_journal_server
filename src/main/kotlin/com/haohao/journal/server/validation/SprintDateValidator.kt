@@ -18,7 +18,7 @@ class SprintDateValidator(
     }
 
     override fun initialize(constraintAnnotation: SprintDateConstraint) {
-        // 初期化は不要ですが、インターフェースの実装として必要です
+        // Initialization is not required, but needed as an interface implementation
     }
 
     override fun isValid(

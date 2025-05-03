@@ -26,7 +26,7 @@ class HaohaoJournalServerApplicationTests {
 
     @Test
     fun contextLoads() {
-        // コンテキストが正常にロードされることを確認
+        // Verify that the context loads successfully
     }
 
     @Test

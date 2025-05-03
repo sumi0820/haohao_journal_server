@@ -2,22 +2,22 @@
 
 echo "Running pre-commit checks..."
 
-# プロジェクトのルートディレクトリに移動
+# Move to the project root directory
 cd "$(git rev-parse --show-toplevel)"
 
-# フォーマットチェック
+# Format check
 echo "Running ktlint format check..."
 ./gradlew ktlintFormat
 
-# コード品質チェック
+# Code quality check
 echo "Running detekt check..."
 ./gradlew detekt
 
-# テスト実行
+# Run tests
 echo "Running tests..."
 ./gradlew test
 
-# エラーが発生した場合の処理
+# Error handling
 if [ $? -ne 0 ]; then
     echo "❌ Pre-commit checks failed. Please fix the issues before committing."
     echo "For more details, check the build output above."
