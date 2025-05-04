@@ -1,5 +1,7 @@
 package com.haohao.journal.server.service
 
+import com.haohao.journal.server.dto.EpicCreateRequest
+import com.haohao.journal.server.dto.EpicUpdateRequest
 import com.haohao.journal.server.model.Epic
 import com.haohao.journal.server.repository.EpicRepository
 import org.springframework.stereotype.Service
@@ -23,20 +25,16 @@ class EpicService(
     fun findById(id: Long): Epic? = epicRepository.findById(id).orElse(null)
 
     @Transactional
-    fun create(
-        sprintId: Long,
-        title: String,
-        description: String?,
-    ): Epic {
+    fun create(request: EpicCreateRequest): Epic {
         val sprint =
-            sprintService.findById(sprintId)
-                ?: throw IllegalArgumentException("Sprint not found with id: $sprintId")
+            sprintService.findById(request.sprintId)
+                ?: throw IllegalArgumentException("Sprint not found with id: ${request.sprintId}")
 
         val epic =
             Epic(
                 sprint = sprint,
-                title = title,
-                description = description,
+                title = request.title,
+                description = request.description,
             )
         return epicRepository.save(epic)
     }
@@ -44,13 +42,12 @@ class EpicService(
     @Transactional
     fun update(
         id: Long,
-        title: String?,
-        description: String?,
+        request: EpicUpdateRequest,
     ): Epic {
         val epic = findById(id) ?: throw IllegalArgumentException("Epic not found with id: $id")
 
-        title?.let { epic.title = it }
-        description?.let { epic.description = it }
+        request.title?.let { epic.title = it }
+        request.description?.let { epic.description = it }
         epic.updatedAt = LocalDateTime.now()
 
         return epicRepository.save(epic)
