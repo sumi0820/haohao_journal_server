@@ -31,8 +31,9 @@ class EpicController(
     fun getEpic(
         @PathVariable id: Long,
     ): ResponseEntity<Epic> {
-        val epic = epicService.findById(id)
-            ?: return ResponseEntity.notFound().build()
+        val epic =
+            epicService.findById(id)
+                ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(epic)
     }
 
