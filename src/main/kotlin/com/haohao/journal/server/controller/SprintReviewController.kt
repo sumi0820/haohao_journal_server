@@ -4,6 +4,7 @@ import com.haohao.journal.server.dto.SprintReviewCreateRequest
 import com.haohao.journal.server.dto.SprintReviewUpdateRequest
 import com.haohao.journal.server.model.SprintReview
 import com.haohao.journal.server.service.SprintReviewService
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,12 +21,19 @@ import java.time.LocalDateTime
 class SprintReviewController(
     private val sprintReviewService: SprintReviewService,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     @GetMapping("/sprint/{sprintId}")
     fun getSprintReviewsBySprint(
         @PathVariable sprintId: Long,
     ): ResponseEntity<List<SprintReview>> {
-        val reviews = sprintReviewService.findAllBySprint(sprintId)
-        return ResponseEntity.ok(reviews)
+        return try {
+            val reviews = sprintReviewService.findAllBySprint(sprintId)
+            ResponseEntity.ok(reviews)
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Failed to get sprint reviews: {}", e.message, e)
+            ResponseEntity.badRequest().build()
+        }
     }
 
     @GetMapping("/sprint/{sprintId}/date/{date}")
@@ -33,10 +41,15 @@ class SprintReviewController(
         @PathVariable sprintId: Long,
         @PathVariable date: LocalDateTime,
     ): ResponseEntity<SprintReview> {
-        val review =
-            sprintReviewService.findBySprintAndDate(sprintId, date)
-                ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(review)
+        return try {
+            val review =
+                sprintReviewService.findBySprintAndDate(sprintId, date)
+                    ?: return ResponseEntity.notFound().build()
+            ResponseEntity.ok(review)
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Failed to get sprint review by date: {}", e.message, e)
+            ResponseEntity.badRequest().build()
+        }
     }
 
     @GetMapping("/{id}")
@@ -53,8 +66,16 @@ class SprintReviewController(
     fun createSprintReview(
         @RequestBody request: SprintReviewCreateRequest,
     ): ResponseEntity<SprintReview> {
-        val review = sprintReviewService.create(request)
-        return ResponseEntity.ok(review)
+        return try {
+            val review = sprintReviewService.create(request)
+            ResponseEntity.ok(review)
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Failed to create sprint review: {}", e.message, e)
+            ResponseEntity.badRequest().build()
+        } catch (e: IllegalStateException) {
+            logger.warn("Failed to create sprint review: {}", e.message, e)
+            ResponseEntity.badRequest().build()
+        }
     }
 
     @PutMapping("/{id}")
@@ -62,15 +83,25 @@ class SprintReviewController(
         @PathVariable id: Long,
         @RequestBody request: SprintReviewUpdateRequest,
     ): ResponseEntity<SprintReview> {
-        val review = sprintReviewService.update(id, request)
-        return ResponseEntity.ok(review)
+        return try {
+            val review = sprintReviewService.update(id, request)
+            ResponseEntity.ok(review)
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Failed to update sprint review: {}", e.message, e)
+            ResponseEntity.notFound().build()
+        }
     }
 
     @DeleteMapping("/{id}")
     fun deleteSprintReview(
         @PathVariable id: Long,
     ): ResponseEntity<Void> {
-        sprintReviewService.delete(id)
-        return ResponseEntity.noContent().build()
+        return try {
+            sprintReviewService.delete(id)
+            ResponseEntity.noContent().build()
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Failed to delete sprint review: {}", e.message, e)
+            ResponseEntity.notFound().build()
+        }
     }
 }
