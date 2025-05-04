@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @SpringBootTest(
     webEnvironment = WebEnvironment.RANDOM_PORT,
     classes = [HaohaoJournalServerApplication::class],
-    properties = ["spring.main.allow-bean-definition-overriding=true"]
+    properties = ["spring.main.allow-bean-definition-overriding=true"],
 )
 @AutoConfigureMockMvc
 @Import(TestConfig::class, TestSecurityConfig::class, TestRepositoryConfig::class)
