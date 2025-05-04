@@ -18,13 +18,13 @@ data class SprintReview(
     val id: Long = 0,
     @ManyToOne
     @JoinColumn(name = "sprint_id", nullable = false)
-    val sprint: Sprint,
-    @Column(nullable = false)
-    var title: String,
-    @Column(nullable = false)
-    var content: String,
-    @Column(nullable = false)
-    var reviewDate: LocalDateTime,
+    var sprint: Sprint,
+    @Column
+    var doneSummary: String? = null,
+    @Column
+    var feelingSummary: String? = null,
+    @Column
+    var nextSprintPlan: String? = null,
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
     @Column(nullable = false)

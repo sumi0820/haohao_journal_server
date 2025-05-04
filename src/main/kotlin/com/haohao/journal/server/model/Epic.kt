@@ -23,6 +23,8 @@ data class Epic(
     var title: String,
     @Column
     var description: String? = null,
+    @Column
+    var color: String? = null,
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
     @Column(nullable = false)

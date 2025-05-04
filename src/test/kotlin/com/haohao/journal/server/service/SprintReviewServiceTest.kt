@@ -1,34 +1,23 @@
 package com.haohao.journal.server.service
 
-import com.haohao.journal.server.dto.SprintReviewCreateRequest
-import com.haohao.journal.server.dto.SprintReviewUpdateRequest
 import com.haohao.journal.server.model.Sprint
 import com.haohao.journal.server.model.SprintReview
 import com.haohao.journal.server.repository.SprintReviewRepository
+import com.haohao.journal.server.service.impl.SprintReviewServiceImpl
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
-import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import java.time.LocalDateTime
 import java.util.Optional
 
-@ExtendWith(MockitoExtension::class)
 class SprintReviewServiceTest {
-    @Mock
-    private lateinit var sprintReviewRepository: SprintReviewRepository
-
-    @Mock
-    private lateinit var sprintService: SprintService
-
-    @InjectMocks
-    private lateinit var sprintReviewService: SprintReviewService
+    private val sprintReviewRepository: SprintReviewRepository = mock()
+    private val service = SprintReviewServiceImpl(sprintReviewRepository)
 
     private val now = LocalDateTime.now()
     private val sprint = Sprint(id = 1L, startDate = now, endDate = now.plusDays(7))
@@ -36,183 +25,113 @@ class SprintReviewServiceTest {
         SprintReview(
             id = 1L,
             sprint = sprint,
-            title = "Test Sprint Review",
-            content = "Test Content",
-            reviewDate = now,
+            doneSummary = "Done summary",
+            feelingSummary = "Feeling summary",
+            nextSprintPlan = "Next sprint plan",
         )
 
     @Test
-    fun `findAllBySprint should return list of reviews when sprint exists`() {
-        `when`(sprintService.findById(1L)).thenReturn(sprint)
-        `when`(sprintReviewRepository.findBySprint(sprint)).thenReturn(listOf(sprintReview))
+    fun `getSprintReview should return review when found`() {
+        whenever(sprintReviewRepository.findBySprint(sprint)).thenReturn(sprintReview)
 
-        val result = sprintReviewService.findAllBySprint(1L)
-
-        assertEquals(listOf(sprintReview), result)
-    }
-
-    @Test
-    fun `findAllBySprint should throw exception when sprint not found`() {
-        `when`(sprintService.findById(1L)).thenReturn(null)
-
-        assertThrows<IllegalArgumentException> {
-            sprintReviewService.findAllBySprint(1L)
-        }
-    }
-
-    @Test
-    fun `findById should return review when exists`() {
-        `when`(sprintReviewRepository.findById(1L)).thenReturn(Optional.of(sprintReview))
-
-        val result = sprintReviewService.findById(1L)
+        val result = service.getSprintReview(sprint)
 
         assertEquals(sprintReview, result)
     }
 
     @Test
-    fun `findById should return null when not exists`() {
-        `when`(sprintReviewRepository.findById(1L)).thenReturn(Optional.empty())
+    fun `getSprintReview should return null when not found`() {
+        whenever(sprintReviewRepository.findBySprint(sprint)).thenReturn(null)
 
-        val result = sprintReviewService.findById(1L)
+        val result = service.getSprintReview(sprint)
 
         assertNull(result)
     }
 
     @Test
-    fun `findBySprintAndDate should return review when exists`() {
-        `when`(sprintService.findById(1L)).thenReturn(sprint)
-        `when`(sprintReviewRepository.findBySprint(sprint)).thenReturn(listOf(sprintReview))
+    fun `createSprintReview should create and return review`() {
+        whenever(sprintReviewRepository.findBySprint(sprint)).thenReturn(null)
+        whenever(sprintReviewRepository.save(any<SprintReview>())).thenReturn(sprintReview)
 
-        val result = sprintReviewService.findBySprintAndDate(1L, now)
-
-        assertEquals(sprintReview, result)
-    }
-
-    @Test
-    fun `findBySprintAndDate should return null when no review exists for date`() {
-        `when`(sprintService.findById(1L)).thenReturn(sprint)
-        `when`(sprintReviewRepository.findBySprint(sprint)).thenReturn(emptyList())
-
-        val result = sprintReviewService.findBySprintAndDate(1L, now)
-
-        assertNull(result)
-    }
-
-    @Test
-    fun `findBySprintAndDate should throw exception when sprint not found`() {
-        `when`(sprintService.findById(1L)).thenReturn(null)
-
-        assertThrows<IllegalArgumentException> {
-            sprintReviewService.findBySprintAndDate(1L, now)
-        }
-    }
-
-    @Test
-    fun `create should return created review`() {
-        val request =
-            SprintReviewCreateRequest(
-                sprintId = 1L,
-                title = "Test Sprint Review",
-                content = "Test Content",
-                reviewDate = now,
-            )
-
-        `when`(sprintService.findById(1L)).thenReturn(sprint)
-        `when`(sprintReviewRepository.findBySprint(sprint)).thenReturn(emptyList())
-        `when`(sprintReviewRepository.save(any())).thenReturn(sprintReview)
-
-        val result = sprintReviewService.create(request)
+        val result = service.createSprintReview(sprint)
 
         assertEquals(sprintReview, result)
     }
 
     @Test
-    fun `create should throw exception when sprint not found`() {
-        val request =
-            SprintReviewCreateRequest(
-                sprintId = 1L,
-                title = "Test Sprint Review",
-                content = "Test Content",
-                reviewDate = now,
-            )
-
-        `when`(sprintService.findById(1L)).thenReturn(null)
-
-        assertThrows<IllegalArgumentException> {
-            sprintReviewService.create(request)
-        }
-    }
-
-    @Test
-    fun `create should throw exception when review already exists for date`() {
-        val request =
-            SprintReviewCreateRequest(
-                sprintId = 1L,
-                title = "Test Sprint Review",
-                content = "Test Content",
-                reviewDate = now,
-            )
-
-        `when`(sprintService.findById(1L)).thenReturn(sprint)
-        `when`(sprintReviewRepository.findBySprint(sprint)).thenReturn(listOf(sprintReview))
+    fun `createSprintReview should throw exception when review already exists`() {
+        whenever(sprintReviewRepository.findBySprint(sprint)).thenReturn(sprintReview)
 
         assertThrows<IllegalStateException> {
-            sprintReviewService.create(request)
+            service.createSprintReview(sprint)
         }
     }
 
     @Test
-    fun `update should return updated review`() {
-        val request =
-            SprintReviewUpdateRequest(
-                title = "Updated Sprint Review",
-                content = "Updated Content",
-            )
+    fun `updateSprintReview should update and return review`() {
+        whenever(sprintReviewRepository.findBySprint(sprint)).thenReturn(sprintReview)
+        whenever(sprintReviewRepository.save(any<SprintReview>())).thenReturn(sprintReview)
 
-        val updatedReview =
-            sprintReview.copy(
-                title = "Updated Sprint Review",
-                content = "Updated Content",
-            )
+        val result = service.updateSprintReview(
+            sprint = sprint,
+            doneSummary = "Updated done summary",
+            feelingSummary = "Updated feeling summary",
+            nextSprintPlan = "Updated next sprint plan",
+        )
 
-        `when`(sprintReviewRepository.findById(1L)).thenReturn(Optional.of(sprintReview))
-        `when`(sprintReviewRepository.save(any())).thenReturn(updatedReview)
-
-        val result = sprintReviewService.update(1L, request)
-
-        assertEquals(updatedReview, result)
+        assertEquals(sprintReview, result)
+        assertEquals("Updated done summary", result.doneSummary)
+        assertEquals("Updated feeling summary", result.feelingSummary)
+        assertEquals("Updated next sprint plan", result.nextSprintPlan)
     }
 
     @Test
-    fun `update should throw exception when review not found`() {
-        val request =
-            SprintReviewUpdateRequest(
-                title = "Updated Sprint Review",
-                content = "Updated Content",
-            )
-
-        `when`(sprintReviewRepository.findById(1L)).thenReturn(Optional.empty())
+    fun `updateSprintReview should throw exception when review not found`() {
+        whenever(sprintReviewRepository.findBySprint(sprint)).thenReturn(null)
 
         assertThrows<IllegalArgumentException> {
-            sprintReviewService.update(1L, request)
+            service.updateSprintReview(
+                sprint = sprint,
+                doneSummary = "Updated done summary",
+                feelingSummary = "Updated feeling summary",
+                nextSprintPlan = "Updated next sprint plan",
+            )
         }
     }
 
     @Test
-    fun `delete should delete review when exists`() {
-        `when`(sprintReviewRepository.findById(1L)).thenReturn(Optional.of(sprintReview))
+    fun `findById should return review when found`() {
+        whenever(sprintReviewRepository.findById(1L)).thenReturn(Optional.of(sprintReview))
 
-        sprintReviewService.delete(1L)
+        val result = service.findById(1L)
+
+        assertEquals(sprintReview, result)
+    }
+
+    @Test
+    fun `findById should return null when not found`() {
+        whenever(sprintReviewRepository.findById(1L)).thenReturn(Optional.empty())
+
+        val result = service.findById(1L)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `delete should delete review`() {
+        whenever(sprintReviewRepository.findById(1L)).thenReturn(Optional.of(sprintReview))
+
+        service.delete(1L)
 
         verify(sprintReviewRepository).delete(sprintReview)
     }
 
     @Test
     fun `delete should throw exception when review not found`() {
-        `when`(sprintReviewRepository.findById(1L)).thenReturn(Optional.empty())
+        whenever(sprintReviewRepository.findById(1L)).thenReturn(Optional.empty())
 
         assertThrows<IllegalArgumentException> {
-            sprintReviewService.delete(1L)
+            service.delete(1L)
         }
     }
 }

@@ -1,75 +1,83 @@
 package com.haohao.journal.server.controller
 
-import com.haohao.journal.server.dto.DailyReviewCreateRequest
-import com.haohao.journal.server.dto.DailyReviewUpdateRequest
 import com.haohao.journal.server.model.DailyReview
 import com.haohao.journal.server.service.DailyReviewService
+import com.haohao.journal.server.service.SprintService
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 @RestController
-@RequestMapping("/api/v1/daily-reviews")
+@RequestMapping("/api/daily-reviews")
 class DailyReviewController(
     private val dailyReviewService: DailyReviewService,
+    private val sprintService: SprintService,
 ) {
     @GetMapping("/sprint/{sprintId}")
     fun getDailyReviewsBySprint(
         @PathVariable sprintId: Long,
     ): ResponseEntity<List<DailyReview>> {
-        val reviews = dailyReviewService.findAllBySprint(sprintId)
-        return ResponseEntity.ok(reviews)
+        val sprint =
+            sprintService.findById(sprintId)
+                ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(dailyReviewService.getDailyReviewsBySprint(sprint))
     }
 
     @GetMapping("/sprint/{sprintId}/date/{date}")
-    fun getDailyReviewByDate(
+    fun getDailyReviewBySprintAndDate(
         @PathVariable sprintId: Long,
-        @PathVariable date: LocalDateTime,
+        @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate,
     ): ResponseEntity<DailyReview> {
-        val review =
-            dailyReviewService.findBySprintAndDate(sprintId, date)
-                ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(review)
+        val sprint = sprintService.findById(sprintId) ?: return ResponseEntity.notFound().build()
+        val dailyReview = dailyReviewService.getDailyReview(sprint, date)
+        return if (dailyReview != null) ResponseEntity.ok(dailyReview) else ResponseEntity.notFound().build()
     }
 
-    @GetMapping("/{id}")
-    fun getDailyReview(
-        @PathVariable id: Long,
-    ): ResponseEntity<DailyReview> {
-        val review =
-            dailyReviewService.findById(id)
-                ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(review)
-    }
-
-    @PostMapping
+    @PostMapping("/sprint/{sprintId}/date/{date}")
     fun createDailyReview(
-        @RequestBody request: DailyReviewCreateRequest,
+        @PathVariable sprintId: Long,
+        @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate,
     ): ResponseEntity<DailyReview> {
-        val review = dailyReviewService.create(request)
-        return ResponseEntity.ok(review)
+        val sprint =
+            sprintService.findById(sprintId)
+                ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(dailyReviewService.createDailyReview(sprint, date))
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/sprint/{sprintId}/date/{date}")
     fun updateDailyReview(
-        @PathVariable id: Long,
-        @RequestBody request: DailyReviewUpdateRequest,
+        @PathVariable sprintId: Long,
+        @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate,
+        @RequestParam(required = false) doneSummary: String?,
+        @RequestParam(required = false) feelingSummary: String?,
+        @RequestParam(required = false) nextDayPlan: String?,
     ): ResponseEntity<DailyReview> {
-        val review = dailyReviewService.update(id, request)
-        return ResponseEntity.ok(review)
+        val sprint =
+            sprintService.findById(sprintId)
+                ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(
+            dailyReviewService.updateDailyReview(
+                sprint = sprint,
+                date = date,
+                doneSummary = doneSummary,
+                feelingSummary = feelingSummary,
+                nextDayPlan = nextDayPlan,
+            ),
+        )
     }
 
     @DeleteMapping("/{id}")
     fun deleteDailyReview(
         @PathVariable id: Long,
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<Unit> {
         dailyReviewService.delete(id)
         return ResponseEntity.noContent().build()
     }

@@ -4,15 +4,14 @@ import com.haohao.journal.server.model.DailyReview
 import com.haohao.journal.server.model.Sprint
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 @Repository
 interface DailyReviewRepository : JpaRepository<DailyReview, Long> {
-    fun findBySprint(sprint: Sprint): List<DailyReview>
-
-    fun findBySprintAndReviewDateBetween(
+    fun findBySprintAndDate(
         sprint: Sprint,
-        startDate: LocalDateTime,
-        endDate: LocalDateTime,
+        date: LocalDate,
     ): DailyReview?
+
+    fun findBySprint(sprint: Sprint): List<DailyReview>
 }

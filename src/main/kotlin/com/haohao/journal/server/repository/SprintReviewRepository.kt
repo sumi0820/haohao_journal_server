@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface SprintReviewRepository : JpaRepository<SprintReview, Long> {
-    fun findBySprint(sprint: Sprint): List<SprintReview>
+    fun findBySprint(sprint: Sprint): SprintReview?
 }
