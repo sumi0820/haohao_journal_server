@@ -67,3 +67,15 @@
       - if: changedFiles.count > 10
         run: |
           echo "Too many files changed in one commit (limit: 10). Consider splitting into smaller feature units." && exit 1
+
+  # 10. Prevent wildcard imports in Kotlin files
+  - id: prevent-wildcard-imports
+    when: preCommit
+    description: >
+      Avoid using wildcard imports (import foo.*) in Kotlin files for better code readability and maintainability.
+      Each class, function, or property should be imported explicitly.
+    actions:
+      - run: |
+          if grep -r "import.*\.\*" src/main/kotlin src/test/kotlin; then
+            echo "Wildcard imports detected. Please import classes explicitly." && exit 1
+          fi
