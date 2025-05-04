@@ -1,42 +1,20 @@
 package com.haohao.journal.server.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.haohao.journal.server.config.TestConfig
-import com.haohao.journal.server.dto.SprintReviewCreateRequest
 import com.haohao.journal.server.model.Sprint
 import com.haohao.journal.server.model.SprintReview
 import com.haohao.journal.server.service.SprintReviewService
 import com.haohao.journal.server.service.SprintService
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @WebMvcTest(SprintReviewController::class)
-@Import(TestConfig::class)
 class SprintReviewControllerTest {
-    @Autowired
-    private lateinit var mockMvc: MockMvc
-
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
-
     @MockBean
     private lateinit var sprintReviewService: SprintReviewService
 

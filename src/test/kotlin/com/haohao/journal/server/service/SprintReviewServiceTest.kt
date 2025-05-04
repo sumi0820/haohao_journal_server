@@ -72,12 +72,13 @@ class SprintReviewServiceTest {
         whenever(sprintReviewRepository.findBySprint(sprint)).thenReturn(sprintReview)
         whenever(sprintReviewRepository.save(any<SprintReview>())).thenReturn(sprintReview)
 
-        val result = service.updateSprintReview(
-            sprint = sprint,
-            doneSummary = "Updated done summary",
-            feelingSummary = "Updated feeling summary",
-            nextSprintPlan = "Updated next sprint plan",
-        )
+        val result =
+            service.updateSprintReview(
+                sprint = sprint,
+                doneSummary = "Updated done summary",
+                feelingSummary = "Updated feeling summary",
+                nextSprintPlan = "Updated next sprint plan",
+            )
 
         assertEquals(sprintReview, result)
         assertEquals("Updated done summary", result.doneSummary)
