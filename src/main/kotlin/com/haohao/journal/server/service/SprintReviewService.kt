@@ -1,5 +1,7 @@
 package com.haohao.journal.server.service
 
+import com.haohao.journal.server.dto.SprintReviewCreateRequest
+import com.haohao.journal.server.dto.SprintReviewUpdateRequest
 import com.haohao.journal.server.model.SprintReview
 import com.haohao.journal.server.repository.SprintReviewRepository
 import org.springframework.stereotype.Service
@@ -13,56 +15,59 @@ class SprintReviewService(
 ) {
     @Transactional(readOnly = true)
     fun findAllBySprint(sprintId: Long): List<SprintReview> {
-        val sprint =
-            sprintService.findById(sprintId)
-                ?: throw IllegalArgumentException("Sprint not found with id: $sprintId")
+        val sprint = sprintService.findById(sprintId)
+            ?: throw IllegalArgumentException("Sprint not found with id: $sprintId")
         return sprintReviewRepository.findBySprint(sprint)
     }
 
     @Transactional(readOnly = true)
     fun findById(id: Long): SprintReview? = sprintReviewRepository.findById(id).orElse(null)
 
-    @Transactional
-    fun create(
-        sprintId: Long,
-        title: String,
-        content: String,
-        reviewDate: LocalDateTime,
-    ): SprintReview {
-        val sprint =
-            sprintService.findById(sprintId)
-                ?: throw IllegalArgumentException("Sprint not found with id: $sprintId")
+    @Transactional(readOnly = true)
+    fun findBySprintAndDate(sprintId: Long, date: LocalDateTime): SprintReview? {
+        val sprint = sprintService.findById(sprintId)
+            ?: throw IllegalArgumentException("Sprint not found with id: $sprintId")
+        return sprintReviewRepository.findBySprint(sprint)
+            .firstOrNull { it.reviewDate.toLocalDate() == date.toLocalDate() }
+    }
 
-        val review =
-            SprintReview(
-                sprint = sprint,
-                title = title,
-                content = content,
-                reviewDate = reviewDate,
-            )
-        return sprintReviewRepository.save(review)
+    @Transactional
+    fun create(request: SprintReviewCreateRequest): SprintReview {
+        val sprint = sprintService.findById(request.sprintId)
+            ?: throw IllegalArgumentException("Sprint not found with id: ${request.sprintId}")
+
+        // スプリントレビューは1スプリントにつき1つまでしか作成できない
+        val existingReview = findBySprintAndDate(request.sprintId, request.reviewDate)
+        check(existingReview == null) { "Sprint review already exists for sprint: ${request.sprintId}" }
+
+        val sprintReview = SprintReview(
+            sprint = sprint,
+            title = request.title,
+            content = request.content,
+            reviewDate = request.reviewDate,
+        )
+        return sprintReviewRepository.save(sprintReview)
     }
 
     @Transactional
     fun update(
         id: Long,
-        title: String?,
-        content: String?,
-        reviewDate: LocalDateTime?,
+        request: SprintReviewUpdateRequest,
     ): SprintReview {
-        val review = findById(id) ?: throw IllegalArgumentException("Review not found with id: $id")
+        val sprintReview = findById(id)
+            ?: throw IllegalArgumentException("SprintReview not found with id: $id")
 
-        title?.let { review.title = it }
-        content?.let { review.content = it }
-        reviewDate?.let { review.reviewDate = it }
-        review.updatedAt = LocalDateTime.now()
+        request.title?.let { sprintReview.title = it }
+        request.content?.let { sprintReview.content = it }
+        sprintReview.updatedAt = LocalDateTime.now()
 
-        return sprintReviewRepository.save(review)
+        return sprintReviewRepository.save(sprintReview)
     }
 
     @Transactional
     fun delete(id: Long) {
-        val review = findById(id) ?: throw IllegalArgumentException("Review not found with id: $id")
-        sprintReviewRepository.delete(review)
+        val sprintReview = findById(id)
+            ?: throw IllegalArgumentException("SprintReview not found with id: $id")
+        sprintReviewRepository.delete(sprintReview)
     }
 }

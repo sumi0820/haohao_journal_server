@@ -25,7 +25,10 @@ class DailyReviewService(
     fun findById(id: Long): DailyReview? = dailyReviewRepository.findById(id).orElse(null)
 
     @Transactional(readOnly = true)
-    fun findBySprintAndDate(sprintId: Long, date: LocalDateTime): DailyReview? {
+    fun findBySprintAndDate(
+        sprintId: Long,
+        date: LocalDateTime,
+    ): DailyReview? {
         val sprint =
             sprintService.findById(sprintId)
                 ?: throw IllegalArgumentException("Sprint not found with id: $sprintId")
