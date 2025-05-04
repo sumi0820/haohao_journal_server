@@ -18,6 +18,13 @@ enum class TaskStatus {
     DONE,
 }
 
+enum class TaskPriority {
+    LOW,
+    MEDIUM,
+    HIGH,
+    URGENT,
+}
+
 @Entity
 @Table(name = "tasks")
 data class Task(
@@ -33,7 +40,7 @@ data class Task(
     @Column(nullable = false)
     var title: String,
     @Column
-    var memo: String? = null,
+    var description: String? = null,
     @Column(nullable = false)
     var plannedDate: LocalDateTime,
     @Column
@@ -41,6 +48,15 @@ data class Task(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: TaskStatus = TaskStatus.TODO,
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var priority: TaskPriority = TaskPriority.MEDIUM,
+    @Column(nullable = false)
+    var estimatedHours: Float = 0f,
+    @Column(nullable = false)
+    var actualHours: Float = 0f,
+    @Column
+    var memo: String? = null,
     @Column(nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
     @Column(nullable = false)
